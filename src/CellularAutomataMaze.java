@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.event.MenuKeyEvent;
-import javax.swing.event.MenuKeyListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,52 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Stack;
 
-/**
- * Author Bryan Sullivan
- * This is a gui version of conways game
- *
- *
- * HOW TO RUN
- * you have option
- * 1) have the board randomly select spots to concider alive plots
- *      -Make sure that the StartRandom global variable is turned on
- * 2) have the board start with all living plots
- *      -turn off StartRandom but make sure that startAlive is true. If you want to change any of the plots to turn them on or off
- *      the only thing you have to do is click on the specific panel
- *
- * Ideas i want to include
- * - make the alive color be a range of colors to make this a little more colorful
- *
- * Ideas that I have learned or had to reteach myself
- * - mouse events
- * - GUI
- * - Panels
- * -
- *
- * Enchantments
- *  -creating a randomly generated field
- *
- *  -createing the alive panels to be a range of colors
- *
- * some errors that I am working on
- *  - when the game is running,as well when not running and is not at a width and height of 10 the click to toggle life is idnex out of bounds
- * errors that i fixed
- *
- * -cannot start the conways game and have it continue going while also updating the gui
- *      -fixed this by using a thread and having it run when the menu item:Start is equal to End becuase when you start it
- *        it changes the text to end and vice versa so when it has the start text it should not be running
- *
- *
- * - Logic is not correct it might be using the new copy version
- *  - the error happened when using the clone function when trying to create the new matrix whenever the cloned matrix
- *      was changed the original matrix changed as well
- *
- *
- *      Cellular automata
- *      -  one through four alive neighbors stay alive
- */
-
-public class GameOfLife {
+public class CellularAutomataMaze {
     JFrame frame;
     JPanel panel;
     JMenuBar Bar;
@@ -61,18 +14,22 @@ public class GameOfLife {
     JMenuItem start;
     boolean[][] GOL;
     JPanel[][] mat;
-    Color[] AliveColors = {Color.BLACK,Color.PINK,Color.BLUE,Color.RED,Color.cyan};
-    //Color[] AliveColors = {Color.BLACK};
+    //Color[] AliveColors = {Color.BLACK,Color.PINK,Color.BLUE,Color.RED,Color.cyan};
+    Color[] AliveColors = {Color.BLACK};
     Color Alive = Color.BLACK;
     Color Dead = Color.WHITE;
     int Width = 150;
     int Height = 150;
+    int centerRange = 5;
     boolean startAlive= false;
-    boolean StartRandom= true;
-    double waitTime = .850;
+    boolean StartRandom= false;
+    boolean MiddleCenter = true;
+    boolean reboot = false;//restarts the maze when amount of changes is passes a point
+    double waitTime = .25;
     double ChanceOfAliveOnStart= 0.35;
 
-    public GameOfLife(){
+
+    public CellularAutomataMaze(){
         GOL = new boolean[Width][Height];
         //set up the frame
         frame = new JFrame();
@@ -88,24 +45,31 @@ public class GameOfLife {
                 mat[i][j].setOpaque(true);
 
                 //this is if you want to start with a random amount of alive
-                if(StartRandom){
-                    if(Math.random()<ChanceOfAliveOnStart){
-                        mat[i][j].setBackground(AliveColors[(int)(Math.random()*(AliveColors.length))]);
+                if(MiddleCenter){
+                    if((i>((Height/2)-centerRange))&&(i<((Height/2)+centerRange)) && (j>((Width/2)-centerRange)) &&(j<((Width/2)+centerRange))){
+                        mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
                     }
                     else{
                         mat[i][j].setBackground(Dead);
                     }
                 }
                 else {
-                    //this is if you want to start either all dead or all alive
-                     if(startAlive) {
-                     mat[i][j].setBackground(AliveColors[(int)(Math.random()*(AliveColors.length))]);
-                     }
-                     else{
-                     mat[i][j].setBackground(Dead);
-                     }
+                    if (StartRandom) {
+                        if (Math.random() < ChanceOfAliveOnStart) {
+                            mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
+                        } else {
+                            mat[i][j].setBackground(Dead);
+                        }
+                    } else {
+                        //this is if you want to start either all dead or all alive
+                        if (startAlive) {
+                            mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
+                        } else {
+                            mat[i][j].setBackground(Dead);
+                        }
 
 
+                    }
                 }
 
 
@@ -160,7 +124,7 @@ public class GameOfLife {
                         public void run() {
                             while(start.getText().equals("END")) {
 
-                                    ConwayGame();
+                                ConwayGame();
 
 
 
@@ -265,45 +229,10 @@ public class GameOfLife {
         return result;
     }
 
-    public static void main(String[] args){
-        GameOfLife run = new GameOfLife();
+    public static void main(String[] args) {
+        CellularAutomataMaze run = new CellularAutomataMaze();
 
     }
-
-
-
-
-/**
-    @Override
-    public void run() {
-        JPanel[][] copy = mat.clone();
-        for(int i =0;i< mat.length;i++){
-            for(int j=0;j<mat[i].length;j++){
-                System.out.print(AliveNeighbors(mat,new Point(i,j)));
-
-                if(mat[i][j].getBackground()==Alive){
-                    int neighbors= AliveNeighbors(mat,new Point(i,j));
-                    if(neighbors !=2&&neighbors!=3){
-                        copy[i][j].setBackground(Dead);
-                    }
-                }
-                else{
-                    int neighbors= AliveNeighbors(mat,new Point(i,j));
-                    if(neighbors==3){
-                        copy[i][j].setBackground(Alive);
-                    }
-                }
-            }
-            System.out.println();
-        }
-        for(int i =0;i< copy.length; i++){
-            for(int j=0;j<copy[i].length;j++){
-                mat[i][j].setBackground(copy[i][j].getBackground());
-            }
-        }
-        mat = copy.clone();
-    }
-    **/
     public boolean isAlive(JPanel cur){
         for(Color v : AliveColors){
             if(v.equals(cur.getBackground())){
@@ -315,60 +244,62 @@ public class GameOfLife {
     }
 
 
-    public void run2(){
+    public void run2() {
         Stack<Point> alterPoints = new Stack<Point>();
-        for(int i =0;i< mat.length;i++){
-            for(int j=0;j<mat[i].length;j++){
+        for (int i = 0; i < mat.length; i++) {
+            for (int j = 0; j < mat[i].length; j++) {
                 /**
                  * the three rules
                  * if a live cell has two or three neighbors
                  */
-                if(isAlive(mat[i][j])){
-                    int neighbors= AliveNeighbors(mat,new Point(i,j));
-                    if(neighbors !=2&&neighbors!=3){
-                        alterPoints.push(new Point(i,j));
+                if (isAlive(mat[i][j])) {
+                    int neighbors = AliveNeighbors(mat, new Point(i, j));
+                    if (neighbors != 1 && neighbors != 2 && neighbors != 3 && neighbors != 4) {
+                        alterPoints.push(new Point(i, j));
                     }
-                }
-                else{
-                    int neighbors= AliveNeighbors(mat,new Point(i,j));
-                    if(neighbors==3){
-                        alterPoints.push(new Point(i,j));
+                } else {
+                    int neighbors = AliveNeighbors(mat, new Point(i, j));
+                    if (neighbors == 3) {
+                        alterPoints.push(new Point(i, j));
                     }
                 }
             }
         }
         int count = 0;
-        while(!alterPoints.isEmpty()){
+        while (!alterPoints.isEmpty()) {
             count++;
             Point p = alterPoints.pop();
-            if(isAlive(mat[p.x][p.y])){
+            if (isAlive(mat[p.x][p.y])) {
                 mat[p.x][p.y].setBackground(Dead);
+            } else {
+                mat[p.x][p.y].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
             }
-            else{ mat[p.x][p.y].setBackground(AliveColors[(int)(Math.random()*(AliveColors.length))]);}
         }
-        if(count > 200){
-            for(int i =0;i< mat.length;i++){
-                for(int j =0;j< mat[i].length;j++) {
-                    if (StartRandom) {
-                        if (Math.random() < ChanceOfAliveOnStart) {
-                            mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
+        if (reboot) {
+            if (count > 200) {
+                for (int i = 0; i < mat.length; i++) {
+                    for (int j = 0; j < mat[i].length; j++) {
+                        if (StartRandom) {
+                            if (Math.random() < ChanceOfAliveOnStart) {
+                                mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
+                            } else {
+                                mat[i][j].setBackground(Dead);
+                            }
                         } else {
-                            mat[i][j].setBackground(Dead);
-                        }
-                    } else {
-                        //this is if you want to start either all dead or all alive
-                        if (startAlive) {
-                            mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
-                        } else {
-                            mat[i][j].setBackground(Dead);
-                        }
+                            //this is if you want to start either all dead or all alive
+                            if (startAlive) {
+                                mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
+                            } else {
+                                mat[i][j].setBackground(Dead);
+                            }
 
 
+                        }
                     }
                 }
-                }
+            }
+
+
         }
-
-
     }
 }
