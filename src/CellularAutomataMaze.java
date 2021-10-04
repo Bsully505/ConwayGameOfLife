@@ -6,6 +6,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Stack;
 
+/**
+ * designs that i have seen that complete the frame
+ * 1234/1
+ *
+ */
+
 public class CellularAutomataMaze {
     JFrame frame;
     JPanel panel;
@@ -252,9 +258,23 @@ public class CellularAutomataMaze {
                  * the three rules
                  * if a live cell has two or three neighbors
                  */
+                /**
+                 * 2345/1 contains loops
+                 * 1345/1 not suitable for maze but creates full design
+                 * 1234/2 not suitable for maze, creates a circular type design
+                 *
+                 *
+                 * good
+                 * 1235/3 maze pattern but to much symotry
+                 *
+                 * ideas on how to change symatry
+                 *  -Change the starting blocks
+                 *      -randamize the alive blocks in the square range for beginning
+                 *
+                 */
                 if (isAlive(mat[i][j])) {
                     int neighbors = AliveNeighbors(mat, new Point(i, j));
-                    if (neighbors != 1 && neighbors != 2 && neighbors != 3 && neighbors != 4) {
+                    if (neighbors != 2 && neighbors != 1 && neighbors != 3 && neighbors != 5) {
                         alterPoints.push(new Point(i, j));
                     }
                 } else {
