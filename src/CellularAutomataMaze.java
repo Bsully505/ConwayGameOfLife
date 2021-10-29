@@ -167,17 +167,16 @@ public class CellularAutomataMaze {
      * based on the living or dead idea
      */
     public void ConwayGame() {
-        int i = 0;
-        while (i++ < 1) {
             run2();
             try {
                 java.lang.Thread.sleep((long)(waitTime*1000));
             } catch (InterruptedException e) {
                 System.err.println("sleep for conways game");
             }
-        }
+
 
     }
+
 
     /**
      *
@@ -321,5 +320,36 @@ public class CellularAutomataMaze {
 
 
         }
+    }
+
+    public Point getStart(){
+        boolean wall = true;
+        while(wall){
+            //create coordinates
+            int x = (int) (Math.random()*this.Width);
+            int y = (int)(Math.random()*this.Height);
+            System.out.println("Start: "+"x "+x+" y "+y);
+            if(!this.isAlive(this.mat[x][y])){
+                this.mat[x][y].setBackground(Color.PINK);
+                return(new Point(x,y));
+            }
+
+        }
+        return new Point(0,0);
+    }
+    public Point getEnd(){
+        boolean wall = true;
+        while(wall){
+            //create coordinates
+            int x = (int) (Math.random()*this.Width);
+            int y = (int)(Math.random()*this.Height);
+            System.out.println("End: "+"x "+x+" y "+y);
+            if(!this.isAlive(this.mat[x][y])){
+                this.mat[x][y].setBackground(Color.GREEN);
+                return(new Point(x,y));
+            }
+
+        }
+        return new Point(0,0);
     }
 }
