@@ -15,7 +15,7 @@ import java.util.Stack;
  *
  * HOW TO RUN
  * you have option
- * 1) have the board randomly select spots to concider alive plots
+ * 1) have the board randomly select spots to consider alive plots
  *      -Make sure that the StartRandom global variable is turned on
  * 2) have the board start with all living plots
  *      -turn off StartRandom but make sure that startAlive is true. If you want to change any of the plots to turn them on or off
@@ -23,6 +23,7 @@ import java.util.Stack;
  *
  * Ideas i want to include
  * - make the alive color be a range of colors to make this a little more colorful
+ *    -i have successfully implemented this
  *
  * Ideas that I have learned or had to reteach myself
  * - mouse events
@@ -31,9 +32,10 @@ import java.util.Stack;
  * -
  *
  * Enchantments
- *  -creating a randomly generated field
+ *  -creating a randomly generated field using cellular automata
+ *      -I am currently working on this in the cellular automata maze class
  *
- *  -createing the alive panels to be a range of colors
+ *
  *
  * some errors that I am working on
  *  - when the game is running,as well when not running and is not at a width and height of 10 the click to toggle life is idnex out of bounds
@@ -47,6 +49,8 @@ import java.util.Stack;
  * - Logic is not correct it might be using the new copy version
  *  - the error happened when using the clone function when trying to create the new matrix whenever the cloned matrix
  *      was changed the original matrix changed as well
+ *   -the way i fixed this problem was to just create a stack of points and then alter those points after the full search
+ *
  *
  *
  *      Cellular automata
