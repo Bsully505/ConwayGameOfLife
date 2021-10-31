@@ -17,10 +17,11 @@ public class CellularAutomataMaze {
     //Color[] AliveColors = {Color.BLACK,Color.PINK,Color.BLUE,Color.RED,Color.cyan};
     Color[] AliveColors = {Color.BLACK};
     Color Alive = Color.BLACK;
+    Color Boundry = Color.BLACK;
     Color Dead = Color.WHITE;
-    int Width = 150;
-    int Height = 150;
-    int centerRange = 5;
+    int Width = 50;
+    int Height = 50;
+    int centerRange = 7;
     boolean startAlive= false;
     boolean StartRandom= false;
     boolean MiddleCenter = true;
@@ -71,34 +72,6 @@ public class CellularAutomataMaze {
 
                     }
                 }
-
-
-                mat[i][j].addMouseListener(new MouseAdapter(){
-                    public void mouseClicked(MouseEvent e)
-                    {
-                        //get the x, y of the screen and divide it by the (unit x and unit y)
-
-                        int x = e.getXOnScreen();
-                        int y = e.getYOnScreen();
-                        int unitX = panel.getWidth()/mat.length;
-                        int unitY=  (panel.getHeight())/mat[0].length;
-
-                        System.out.println("X: "+x+"  Y: "+y);
-                        System.out.println("UnitX: "+ unitX+"  UnitY: "+unitY);
-                        System.out.println(x/unitX+" "+(y-79)/(unitY));
-
-                        int xVal = x/unitX;
-                        int yVal = (y-79)/unitY;
-
-                        if(mat[yVal][xVal].getBackground()==Alive){
-                            mat[yVal][xVal].setBackground(Dead);
-                        }
-                        else{
-                            mat[yVal][xVal].setBackground(AliveColors[(int)(Math.random()*(AliveColors.length))]);
-                        }
-
-                    }
-                });
                 panel.add(mat[i][j]);
             }
 
@@ -163,7 +136,7 @@ public class CellularAutomataMaze {
     public void ConwayGame() {
         int i = 0;
         while (i++ < 1) {
-            run2();
+            runWithRules(new int[] {1,2,3,4},new int[] {3},1);
             try {
                 java.lang.Thread.sleep((long)(waitTime*1000));
             } catch (InterruptedException e) {
@@ -181,6 +154,34 @@ public class CellularAutomataMaze {
      *
      * neighbors are adjacent panels including diagonals
      */
+    public int AliveMovableNeighbors(JPanel[][] mat, Point p){
+        int result= 0;
+
+        try{//top
+            if(!isAlive(mat[p.x][p.y-1])){
+                result++;
+            }
+        }catch(Exception e){}
+
+        try{//left
+            if(!isAlive(mat[p.x-1][p.y])){
+                result++;
+            }
+        }catch(Exception e){}
+        try{//right
+            if(!isAlive(mat[p.x+1][p.y])){
+                result++;
+            }
+        }catch(Exception e){}
+
+        try{//bottom
+            if(!isAlive(mat[p.x][p.y+1])){
+                result++;
+            }
+        }catch(Exception e){}
+
+        return result;
+    }
     public int AliveNeighbors(JPanel[][] mat, Point p){
         int result= 0;
 
@@ -243,6 +244,95 @@ public class CellularAutomataMaze {
         return false;
     }
 
+    public void runWithRules(int[] aliveN, int[] deadN,int iterations){
+        {
+            for(int iterator =0;iterator <iterations;iterator++) {
+                Stack<Point> alterPoints = new Stack<Point>();
+                for (int i = 0; i < mat.length; i++) {
+                    for (int j = 0; j < mat[i].length; j++) {
+                        /**
+                         * the three rules
+                         * if a live cell has two or three neighbors
+                         */
+                        if (isAlive(mat[i][j])) {
+                            int neighbors = AliveNeighbors(mat, new Point(i, j));
+                            boolean temp = true;
+                            for (int z : aliveN) {
+                                if (z == neighbors) {
+                                    temp = false;
+
+                                }
+                            }
+                            if (temp) {
+                                alterPoints.push(new Point(i, j));
+                            }
+                        } else {
+                            int neighbors = AliveNeighbors(mat, new Point(i, j));
+                            boolean temp = true;
+                            for (int b : deadN) {
+                                if (b == neighbors) {
+                                    temp = false;
+
+                                }
+                            }
+                            if (!temp) {
+                                alterPoints.push(new Point(i, j));
+                            } else if (AliveMovableNeighbors(mat, new Point(i, j)) < 0) {
+                                alterPoints.push(new Point(i, j));
+
+                            }
+                        }
+                    }
+                }
+                int count = 0;
+                while (!alterPoints.isEmpty()) {
+                    count++;
+                    Point p = alterPoints.pop();
+                    if (isAlive(mat[p.x][p.y])) {
+                        mat[p.x][p.y].setBackground(Dead);
+                    } else {
+                        mat[p.x][p.y].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
+                    }
+                }
+                if (reboot) {
+                    if (count > 200) {
+                        for (int i = 0; i < mat.length; i++) {
+                            for (int j = 0; j < mat[i].length; j++) {
+                                if (StartRandom) {
+                                    if (Math.random() < ChanceOfAliveOnStart) {
+                                        mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
+                                    } else {
+                                        mat[i][j].setBackground(Dead);
+                                    }
+                                } else {
+                                    //this is if you want to start either all dead or all alive
+                                    if (startAlive) {
+                                        mat[i][j].setBackground(AliveColors[(int) (Math.random() * (AliveColors.length))]);
+                                    } else {
+                                        mat[i][j].setBackground(Dead);
+                                    }
+
+
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+            }
+        }
+    }
+    public void repaint(JPanel[][] mat){
+        for(int i =0;i< mat.length; i++){
+            for(int j =0;j<mat[i].length;j++){
+                this.mat[i][j] = mat[i][j];
+            }
+        }
+    }
+    public void repaintSingle(int x, int y, Color color){
+        mat[x][y].setBackground(color);
+    }
 
     public void run2() {
         Stack<Point> alterPoints = new Stack<Point>();
@@ -254,12 +344,14 @@ public class CellularAutomataMaze {
                  */
                 if (isAlive(mat[i][j])) {
                     int neighbors = AliveNeighbors(mat, new Point(i, j));
-                    if (neighbors != 1 && neighbors != 2 && neighbors != 3 && neighbors != 4) {
+                    if (neighbors == 6 || neighbors == 7 || neighbors == 8  || neighbors ==5|| neighbors ==0) {
                         alterPoints.push(new Point(i, j));
+
                     }
                 } else {
+
                     int neighbors = AliveNeighbors(mat, new Point(i, j));
-                    if (neighbors == 3) {
+                    if (neighbors == 3 ) {
                         alterPoints.push(new Point(i, j));
                     }
                 }
